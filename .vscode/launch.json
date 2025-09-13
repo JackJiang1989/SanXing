@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Full Stack (FastAPI + React)",
+      "configurations": ["FastAPI", "Vite dev server"]
+    }
+  ],
+  "configurations": [
+    {
+      "name": "FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["backend.main:app", "--reload", "--port", "8000"],
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Vite dev server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/frontend"
+    }
+  ]
+}
