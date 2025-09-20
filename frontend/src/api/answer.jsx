@@ -1,11 +1,11 @@
-export async function saveAnswer(content, token) {
-  const res = await fetch("http://localhost:8000/answer", {
+export async function saveAnswer(content, token, question_id) {
+  const res = await fetch("/api/answer", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, question_id }),
   });
   if (!res.ok) {
     throw new Error("Failed to save answer");
@@ -14,9 +14,10 @@ export async function saveAnswer(content, token) {
 }
 
 export async function getAnswers(token) {
-  const res = await fetch("http://localhost:8000/answers", {
+  const res = await fetch("/api/answer", {
     method: "GET",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   });

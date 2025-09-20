@@ -1,5 +1,5 @@
 export async function signup(email, password) {
-  const res = await fetch("http://localhost:8000/auth/signup", {
+  const res = await fetch("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -11,7 +11,7 @@ export async function signup(email, password) {
 }
 
 export async function login(email, password) {
-  const res = await fetch("http://localhost:8000/auth/login", {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

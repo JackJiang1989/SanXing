@@ -3,7 +3,7 @@
   "compounds": [
     {
       "name": "Full Stack (FastAPI + React)",
-      "configurations": ["FastAPI", "Vite dev server"]
+      "configurations": ["FastAPI", "Vite dev server", "Debug React Frontend"]
     }
   ],
   "configurations": [
@@ -22,6 +22,15 @@
       "request": "launch",
       "command": "npm run dev",
       "cwd": "${workspaceFolder}/frontend"
+    },
+    {
+      "name": "Debug React Frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "trace": true,
+      "sourceMaps": true
     }
   ]
 }
