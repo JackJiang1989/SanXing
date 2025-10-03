@@ -164,7 +164,7 @@ class QuestionResponse(BaseModel):
     tag: str
     inspiring_words: str
     class Config:
-        orm_mode = True  # 开启 ORM 模式
+        from_attributes = True  # 开启 ORM 模式
 
 class UserInfoResponse(BaseModel):
     email: str
@@ -443,7 +443,7 @@ class myQuestionResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 @app.post("/api/my-questions", response_model=myQuestionResponse)
@@ -495,7 +495,7 @@ class QuestionInfo(BaseModel):
     inspiring_words: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FolderCreate(BaseModel):
@@ -509,8 +509,8 @@ class FolderResponse(BaseModel):
     questions: List[QuestionInfo] = []
 
     class Config:
-        orm_mode = True
-
+        # orm_mode = True
+        from_attributes = True
 
 @app.post("/api/folders", response_model=FolderResponse)
 def create_folder(data: FolderCreate, user: User = Depends(get_current_user)):
@@ -522,6 +522,10 @@ def create_folder(data: FolderCreate, user: User = Depends(get_current_user)):
     db.add(folder)
     db.commit()
     db.refresh(folder)
+
+    # ✅ 在关闭连接前，主动触发关联查询
+    _ = folder.questions  # 强制加载 questions
+
     db.close()
     return folder
 

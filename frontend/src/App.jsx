@@ -7,6 +7,8 @@ import Setting from "./pages/users/setting";
 import MyQuestionPage from "./pages/question/MyQuestionPage";
 import CreateQuestionPage from "./pages/question/CreateQuestionPage";
 import Test from "./pages/about/test";
+import FolderPage from "./pages/folder/folderpage";
+import FolderDetailPage from "./pages/folder/folderdetailpage";
 
 export default function App() {
   return (
@@ -27,6 +29,13 @@ export default function App() {
         <Route path="/myquestion" element={<MyQuestionPage />} />
         <Route path="/createquestion" element={<CreateQuestionPage />} />
         <Route path="/test" element={<Test />} />
+
+        {/* 文件夹相关路由 */}
+        <Route path="/folders" element={<FolderPage />} /> {/* 文件夹列表 */}
+        <Route path="/folders/:folderId" element={<FolderDetailPage />} /> {/* 文件夹详情 */}
+        
+
+        
       </Routes>
     </BrowserRouter>
   );
