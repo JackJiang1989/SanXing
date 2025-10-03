@@ -13,11 +13,11 @@ export async function saveAnswer(content, token, question_id) {
   return res.json();
 }
 
-export async function getAnswers(token) {
-  const res = await fetch("/api/answer", {
+export async function getAnswers(token, questionId) {
+  const res = await fetch(`/api/answer?question_id=${questionId}`, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
+      // "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   });

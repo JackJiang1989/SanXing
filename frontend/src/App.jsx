@@ -3,6 +3,10 @@ import Homepage from "./pages/home/homepage";
 import QuestionPage from "./pages/QA/QApage";
 import Login from "./pages/auth/login";
 import Signup from "./pages/auth/signup";
+import Setting from "./pages/users/setting";
+import MyQuestionPage from "./pages/question/MyQuestionPage";
+import CreateQuestionPage from "./pages/question/CreateQuestionPage";
+import Test from "./pages/about/test";
 
 export default function App() {
   return (
@@ -19,6 +23,10 @@ export default function App() {
 
         <Route path="/login" element={<Login />} />  {/* 登录页 */}
         <Route path="/signup" element={<Signup />} /> {/* 注册页 */}
+        <Route path="/setting" element={<Setting />} />
+        <Route path="/myquestion" element={<MyQuestionPage />} />
+        <Route path="/createquestion" element={<CreateQuestionPage />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );
