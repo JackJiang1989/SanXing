@@ -603,3 +603,120 @@ def remove_question_from_folder(folder_id: str, question_id: str, user: User = D
     db.commit()
     db.close()
     return {"message": "Question removed from folder successfully"}
+
+
+
+# Pydantic 模型
+class UserActivityResponse(BaseModel):
+    year: int
+    month: int
+    daily_counts: dict
+
+class AnswerByDateResponse(BaseModel):
+    id: str
+    content: str
+    created_at: datetime
+    question_id: str
+    question_text: str
+    tag: Optional[str]
+
+class DailyAnswersResponse(BaseModel):
+    date: str
+    answers: List[AnswerByDateResponse]
+
+
+@app.get("/api/user/activity", response_model=UserActivityResponse)
+def get_user_activity(
+    year: int = Query(..., ge=1900, le=2100, description="年份"),
+    month: int = Query(..., ge=1, le=12, description="月份(1-12)"),
+    user: User = Depends(get_current_user)
+):
+    """获取用户某月的写作活跃度统计"""
+    db = SessionLocal()
+    
+    try:
+        # 计算月份的起止日期
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+        
+        # 查询该时间段内的答案
+        answers = db.query(Answer).filter(
+            Answer.user_email == user.email,
+            Answer.created_at >= start_date,
+            Answer.created_at < end_date
+        ).all()
+        
+        # db.close()
+        
+        # 按日期分组统计
+        daily_counts = {}
+        for answer in answers:
+            date_str = answer.created_at.strftime("%Y-%m-%d")
+            daily_counts[date_str] = daily_counts.get(date_str, 0) + 1
+        
+        return UserActivityResponse(
+            year=year,
+            month=month,
+            daily_counts=daily_counts
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid date: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    finally:
+        db.close()
+
+@app.get("/api/user/answers/by-date", response_model=DailyAnswersResponse)
+def get_answers_by_date(
+    date: str = Query(..., description="格式: YYYY-MM-DD"),
+    user: User = Depends(get_current_user)
+):
+    """获取用户某天的所有答案"""
+    db = SessionLocal()
+    
+    try:
+        # 解析日期字符串
+        target_date = datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        db.close()
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    
+    # 计算当天的起止时间
+    start_time = target_date
+    end_time = target_date + timedelta(days=1)
+    
+    # 查询答案并关联问题
+    answers = (
+        db.query(Answer, Question)
+        .join(Question, Answer.question_id == Question.id)
+        .filter(
+            Answer.user_email == user.email,
+            Answer.created_at >= start_time,
+            Answer.created_at < end_time
+        )
+        .order_by(Answer.created_at)
+        .all()
+    )
+    
+    db.close()
+    
+    # 格式化返回
+    answer_list = [
+        AnswerByDateResponse(
+            id=a.Answer.id,
+            content=a.Answer.content,
+            created_at=a.Answer.created_at,
+            question_id=a.Question.id,
+            question_text=a.Question.question_text,
+            tag=a.Question.tag
+        )
+        for a in answers
+    ]
+    
+    return DailyAnswersResponse(
+        date=date,
+        answers=answer_list
+    )

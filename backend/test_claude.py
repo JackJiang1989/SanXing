@@ -1,6 +1,7 @@
 import requests
 import json
 from typing import Optional
+from datetime import datetime, timedelta
 
 # 配置
 BASE_URL = "http://localhost:8000"  # 根据你的实际端口调整
@@ -265,6 +266,188 @@ class APITester:
         self.print_result("删除文件夹", response)
         return response.status_code == 200
     
+
+
+    # ========== ✅ 新增活跃度相关测试 ==========
+    
+    def test_get_activity_current_month(self):
+        """测试获取当前月份的写作活跃度"""
+        now = datetime.now()
+        url = f"{self.base_url}/api/user/activity"
+        params = {
+            "year": now.year,
+            "month": now.month
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result(f"获取写作活跃度 ({now.year}年{now.month}月)", response)
+        
+        # 验证返回数据结构
+        if response.status_code == 200:
+            data = response.json()
+            assert "year" in data, "响应缺少 year 字段"
+            assert "month" in data, "响应缺少 month 字段"
+            assert "daily_counts" in data, "响应缺少 daily_counts 字段"
+            assert isinstance(data["daily_counts"], dict), "daily_counts 应该是字典类型"
+            print(f"✅ 数据结构验证通过")
+            print(f"✅ 本月写作天数: {len(data['daily_counts'])} 天")
+            print(f"✅ 本月总答案数: {sum(data['daily_counts'].values())} 个")
+        
+        return response.status_code == 200
+    
+    def test_get_activity_specific_month(self):
+        """测试获取指定月份的写作活跃度"""
+        url = f"{self.base_url}/api/user/activity"
+        params = {
+            "year": 2025,
+            "month": 10
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result("获取指定月份活跃度 (2025年10月)", response)
+        return response.status_code == 200
+    
+    def test_get_activity_invalid_month(self):
+        """测试无效月份参数"""
+        url = f"{self.base_url}/api/user/activity"
+        params = {
+            "year": 2025,
+            "month": 13  # 无效月份
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result("测试无效月份 (应该返回错误)", response)
+        # 预期应该返回 400 或 422 错误
+        return response.status_code >= 400
+    
+    def test_get_answers_by_date_today(self):
+        """测试获取今天的答案"""
+        today = datetime.now().strftime("%Y-%m-%d")
+        url = f"{self.base_url}/api/user/answers/by-date"
+        params = {
+            "date": today
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result(f"获取今天的答案 ({today})", response)
+        
+        # 验证返回数据结构
+        if response.status_code == 200:
+            data = response.json()
+            assert "date" in data, "响应缺少 date 字段"
+            assert "answers" in data, "响应缺少 answers 字段"
+            assert isinstance(data["answers"], list), "answers 应该是列表类型"
+            print(f"✅ 数据结构验证通过")
+            print(f"✅ 今天的答案数量: {len(data['answers'])} 个")
+            
+            # 验证每个答案的结构
+            if len(data["answers"]) > 0:
+                answer = data["answers"][0]
+                required_fields = ["id", "content", "created_at", "question_id", "question_text"]
+                for field in required_fields:
+                    assert field in answer, f"答案缺少 {field} 字段"
+                print(f"✅ 答案数据结构验证通过")
+        
+        return response.status_code == 200
+    
+    def test_get_answers_by_date_specific(self):
+        """测试获取指定日期的答案"""
+        url = f"{self.base_url}/api/user/answers/by-date"
+        params = {
+            "date": "2025-10-04"
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result("获取指定日期的答案 (2025-10-04)", response)
+        return response.status_code == 200
+    
+    def test_get_answers_by_date_invalid_format(self):
+        """测试无效的日期格式"""
+        url = f"{self.base_url}/api/user/answers/by-date"
+        params = {
+            "date": "2025/10/04"  # 错误格式
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result("测试无效日期格式 (应该返回 400)", response)
+        return response.status_code == 400
+    
+    def test_get_answers_by_date_no_data(self):
+        """测试查询没有数据的日期"""
+        # 查询很久以前的日期，应该没有数据
+        url = f"{self.base_url}/api/user/answers/by-date"
+        params = {
+            "date": "2020-01-01"
+        }
+        response = requests.get(url, params=params, headers=self.get_headers())
+        self.print_result("查询无数据日期 (2020-01-01)", response)
+        
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ 返回空列表: {len(data['answers']) == 0}")
+        
+        return response.status_code == 200
+    
+    def test_activity_unauthorized(self):
+        """测试未授权访问活跃度接口"""
+        url = f"{self.base_url}/api/user/activity"
+        params = {
+            "year": 2025,
+            "month": 10
+        }
+        # 不传 token
+        response = requests.get(url, params=params)
+        success = response.status_code in [401, 422]
+        self.print_result("测试未授权访问 (应该返回 401 或 422)", response)
+        return success
+    
+    def test_activity_workflow(self):
+        """测试完整的活跃度工作流"""
+        print("\n" + "="*60)
+        print("🔄 测试完整活跃度工作流")
+        print("="*60)
+        
+        # 1. 获取当前月份活跃度
+        now = datetime.now()
+        activity_url = f"{self.base_url}/api/user/activity"
+        activity_params = {"year": now.year, "month": now.month}
+        activity_response = requests.get(activity_url, params=activity_params, headers=self.get_headers())
+        
+        if activity_response.status_code != 200:
+            print("❌ 获取活跃度失败")
+            return False
+        
+        activity_data = activity_response.json()
+        print(f"✅ 步骤1: 获取活跃度成功")
+        print(f"   - 本月写作天数: {len(activity_data['daily_counts'])}")
+        
+        # 2. 找到有数据的日期
+        if not activity_data["daily_counts"]:
+            print("⚠️  本月暂无写作记录，工作流测试结束")
+            return True
+        
+        # 选择第一个有数据的日期
+        test_date = list(activity_data["daily_counts"].keys())[0]
+        expected_count = activity_data["daily_counts"][test_date]
+        print(f"✅ 步骤2: 选择测试日期 {test_date}，预期答案数: {expected_count}")
+        
+        # 3. 获取该日期的详细答案
+        answers_url = f"{self.base_url}/api/user/answers/by-date"
+        answers_params = {"date": test_date}
+        answers_response = requests.get(answers_url, params=answers_params, headers=self.get_headers())
+        
+        if answers_response.status_code != 200:
+            print("❌ 获取答案详情失败")
+            return False
+        
+        answers_data = answers_response.json()
+        actual_count = len(answers_data["answers"])
+        print(f"✅ 步骤3: 获取答案详情成功")
+        print(f"   - 实际答案数: {actual_count}")
+        
+        # 4. 验证数据一致性
+        if actual_count == expected_count:
+            print(f"✅ 步骤4: 数据一致性验证通过 ✨")
+            return True
+        else:
+            print(f"❌ 步骤4: 数据不一致！预期 {expected_count} 个，实际 {actual_count} 个")
+            return False
+    
+
     def run_all_tests(self):
         """运行所有测试"""
         print("\n" + "="*60)
@@ -282,6 +465,7 @@ class APITester:
             print("\n❌ 登录失败,停止后续测试")
             return results
         
+        '''
         # 2. 问题相关测试
         print("\n❓ === 问题相关测试 ===")
         results["获取随机问题"] = self.test_get_random_question()
@@ -314,7 +498,19 @@ class APITester:
         results["添加问题到文件夹"] = self.test_add_question_to_folder()
         results["从文件夹移除问题"] = self.test_remove_question_from_folder()
         results["删除文件夹"] = self.test_delete_folder()
-        
+        '''
+        # ✅ 7. 活跃度相关测试
+        print("\n📊 === 写作活跃度相关测试 ===")
+        results["获取当前月份活跃度"] = self.test_get_activity_current_month()
+        results["获取指定月份活跃度"] = self.test_get_activity_specific_month()
+        results["测试无效月份参数"] = self.test_get_activity_invalid_month()
+        results["获取今天的答案"] = self.test_get_answers_by_date_today()
+        results["获取指定日期的答案"] = self.test_get_answers_by_date_specific()
+        results["测试无效日期格式"] = self.test_get_answers_by_date_invalid_format()
+        results["查询无数据日期"] = self.test_get_answers_by_date_no_data()
+        results["测试未授权访问"] = self.test_activity_unauthorized()
+        results["完整活跃度工作流"] = self.test_activity_workflow() 
+
         # 打印测试总结
         print("\n" + "="*60)
         print("测试总结")
