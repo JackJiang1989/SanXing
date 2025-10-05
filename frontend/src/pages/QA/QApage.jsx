@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getQuestion } from "../../api/getQuestion";
+import { getQuestion } from "../../api/question";
 import { saveAnswer, getAnswers } from "../../api/answer";
 import { getCurrentUser } from "../../api/user";
 
