@@ -9,6 +9,10 @@ import CreateQuestionPage from "./pages/question/CreateQuestionPage";
 import Test from "./pages/about/test";
 import FolderPage from "./pages/folder/folderpage";
 import FolderDetailPage from "./pages/folder/folderdetailpage";
+import ActivityCalendarPage from "./pages/activity/ActivityCalendarPage"; // ✅ 新增
+import DailyAnswersPage from "./pages/activity/DailyAnswersPage"; // ✅ 新增
+
+
 
 export default function App() {
   return (
@@ -34,7 +38,9 @@ export default function App() {
         <Route path="/folders" element={<FolderPage />} /> {/* 文件夹列表 */}
         <Route path="/folders/:folderId" element={<FolderDetailPage />} /> {/* 文件夹详情 */}
         
-
+        {/* ✅ 新增路由 */}
+        <Route path="/activity" element={<ActivityCalendarPage />} />
+        <Route path="/activity/:date" element={<DailyAnswersPage />} />
         
       </Routes>
     </BrowserRouter>
