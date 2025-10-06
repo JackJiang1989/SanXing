@@ -130,15 +130,6 @@ export default function QuestionPage(props) {
         </div>
       ))}
       </div>
-
-      {/* <ul>
-        {answers.map((answer) => (
-          <li key={answer.id}>
-            <p>{answer.content}</p>
-            <small>{new Date(answer.created_at).toLocaleString()}</small>
-          </li>
-        ))}
-      </ul> */}
     </div>
 
   );

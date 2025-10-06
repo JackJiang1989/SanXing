@@ -12,18 +12,30 @@ import FolderDetailPage from "./pages/folder/folderdetailpage";
 import ActivityCalendarPage from "./pages/activity/ActivityCalendarPage"; // ✅ 新增
 import DailyAnswersPage from "./pages/activity/DailyAnswersPage"; // ✅ 新增
 
+import DailyQuestionsCard from "./components/DailyQuestionsCard";
+import WriteAnswer from "./components/WriteAnswer";
 
+import Calendar from "./components/Calendar";
+import CalendarActivity from "./components/CalendarActivity";
+
+import Folders from "./components/Folders";
+import FolderCreate from "./components/FolderCreate";
+import FolderDetails from "./components/FolderDetails";
+
+import HomePage from "./pages/home/HomePageNew";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        <Route path="/" element={<Homepage />} />
+        {/* <Route path="/" element={<Homepage />} /> */}
+        <Route path="/" element={<HomePage />} />
 
         {/* 动态 questionId 从url中获取 useparams*/}
-        <Route path="/question/:questionId" element={<QuestionPage />} />
-        
+        {/* <Route path="/question/:questionId" element={<QuestionPage />} /> */}
+        <Route path="/question/:questionId" element={<WriteAnswer />} />     
+
         {/* 可选主页固定问题 从element中获取 props*/}
         <Route path="/question/" element={<QuestionPage questionId="597dcd41-7450-47e7-a939-2eae4a9857aa" />} />
 
@@ -35,13 +47,24 @@ export default function App() {
         <Route path="/test" element={<Test />} />
 
         {/* 文件夹相关路由 */}
-        <Route path="/folders" element={<FolderPage />} /> {/* 文件夹列表 */}
-        <Route path="/folders/:folderId" element={<FolderDetailPage />} /> {/* 文件夹详情 */}
+        {/* <Route path="/folders" element={<FolderPage />} />  */}
+        {/* <Route path="/folders/:folderId" element={<FolderDetailPage />} />  */}
         
+        <Route path="/folders" element={<Folders />} /> 
+        <Route path="/folders/:folderId" element={<FolderDetails />} /> 
+        <Route path="/folders/create" element={<FolderCreate />} />        
+
+
         {/* ✅ 新增路由 */}
-        <Route path="/activity" element={<ActivityCalendarPage />} />
-        <Route path="/activity/:date" element={<DailyAnswersPage />} />
-        
+        {/* <Route path="/activity" element={<ActivityCalendarPage />} /> */}
+        {/* <Route path="/activity/:date" element={<DailyAnswersPage />} /> */}
+        <Route path="/activity" element={<Calendar />} />
+        <Route path="/activity/:date" element={<CalendarActivity />} />
+
+
+        {/* ✅ 3个问题卡片 */}
+        <Route path="/dailyquestions" element={<DailyQuestionsCard />} />
+
       </Routes>
     </BrowserRouter>
   );

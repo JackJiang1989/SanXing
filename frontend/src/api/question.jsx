@@ -44,3 +44,12 @@ export async function getQuestion(questionId) {
     return "加载问题出错了，请稍后再试。";
   }
 }
+
+
+
+// 获取每日推荐的3个问题
+export async function getDailyQuestions() {
+  const res = await fetch("/api/daily-questions");
+  if (!res.ok) throw new Error("获取每日问题失败");
+  return res.json();
+}

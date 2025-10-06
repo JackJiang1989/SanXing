@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, Session
 from pydantic import BaseModel, EmailStr
 from uuid import uuid4
+from datetime import date
 from typing import Optional, List
 import hashlib
 import secrets
@@ -720,3 +721,45 @@ def get_answers_by_date(
         date=date,
         answers=answer_list
     )
+
+
+
+#每日问题组件
+@app.get("/api/daily-questions")
+def get_daily_questions(db: Session = Depends(get_db)):
+    """
+    返回每日推荐的3个问题
+    使用当天日期作为随机种子，确保同一天返回相同的问题
+    """
+    # 获取所有公开问题
+    # all_questions = db.query(Question).filter(Question.is_public == True).all()
+    all_questions = db.query(Question).all()    
+    if len(all_questions) < 3:
+        # 如果公开问题不足3个，返回所有可用问题
+        return [
+            {
+                "id": q.id,
+                "question_text": q.question_text,
+                "tag": q.tag,
+                "inspiring_words": q.inspiring_words
+            }
+            for q in all_questions
+        ]
+    
+    # 使用当天日期作为随机种子
+    today = date.today()+timedelta(days=2)
+    seed = int(today.strftime("%Y%m%d"))  # 例如：20251005
+    random.seed(seed)
+    
+    # 随机选择3个问题
+    selected = random.sample(all_questions, 3)
+    
+    return [
+        {
+            "id": q.id,
+            "question_text": q.question_text,
+            "tag": q.tag,
+            "inspiring_words": q.inspiring_words
+        }
+        for q in selected
+    ]
