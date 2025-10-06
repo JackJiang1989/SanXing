@@ -28,14 +28,14 @@ export default function DailyQuestionsCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-6">
+    <div className="min-h-0 bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-6 rounded-xl">
       <div className="max-w-6xl w-full">
         {/* 标题区域 */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-light text-emerald-900 mb-3">
+        <div className="text-center mb-4">
+          {/* <h1 className="text-4xl font-light text-emerald-900 mb-3">
             今日问题
-          </h1>
-          <p className="text-emerald-700 text-lg font-light">
+          </h1> */}
+          <p className="text-emerald-700 text-xl font-light">
             {new Date().toLocaleDateString('zh-CN', { 
               year: 'numeric', 
               month: 'long', 

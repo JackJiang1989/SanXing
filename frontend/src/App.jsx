@@ -23,6 +23,8 @@ import FolderCreate from "./components/FolderCreate";
 import FolderDetails from "./components/FolderDetails";
 
 import HomePage from "./pages/home/HomePageNew";
+import Dashboard from "./pages/home/Dashboard";
+
 
 export default function App() {
   return (
@@ -30,7 +32,8 @@ export default function App() {
       <Routes>
 
         {/* <Route path="/" element={<Homepage />} /> */}
-        <Route path="/" element={<HomePage />} />
+        {/* <Route path="/" element={<HomePage />} /> */}
+        <Route path="/" element={<Dashboard />} />
 
         {/* 动态 questionId 从url中获取 useparams*/}
         {/* <Route path="/question/:questionId" element={<QuestionPage />} /> */}
