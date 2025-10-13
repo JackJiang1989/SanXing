@@ -1,6 +1,7 @@
+import { apiUrl } from './config';
 // api/user.js
 export async function getCurrentUser(token) {
-  const res = await fetch("/api/me", {
+  const res = await fetch(apiUrl("/api/me"), {
     headers: {
       "Authorization": `Bearer ${token}` // 或自定义 Header
     }
@@ -10,7 +11,7 @@ export async function getCurrentUser(token) {
 }
 
 export async function getUserSettings(token) {
-  const res = await fetch("/api/user/settings", {
+  const res = await fetch(apiUrl("/api/user/settings"), {
     headers: {
       "Authorization": `Bearer ${token}`, // 直接写 Bearer + token
     },
@@ -20,7 +21,7 @@ export async function getUserSettings(token) {
 }
 
 export async function updateUserSettings(token, updates) {
-  const res = await fetch("/api/user/settings", {
+  const res = await fetch(apiUrl("/api/user/settings"), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -35,7 +36,7 @@ export async function updateUserSettings(token, updates) {
 
 // 更新答案
 export async function updateAnswer(token, answerId, content) {
-  const res = await fetch(`/api/answer/${answerId}`, {
+  const res = await fetch(apiUrl(`/api/answer/${answerId}`), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

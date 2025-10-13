@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, Depends, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta,timezone
@@ -11,39 +12,93 @@ from typing import Optional, List
 import hashlib
 import secrets
 import random
+from dotenv import load_dotenv
 
-app = FastAPI()
+
+# app = FastAPI()
 
 # 允许跨域请求（前端才能正常访问）
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # MVP 阶段先允许所有域名
-    # allow_origins=["http://localhost:5173"],  # Allow only your frontend's origin
-    allow_credentials=True,  # Allow cookies and Authorization headers
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers (e.g., Content-Type, Authorization)
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # MVP 阶段先允许所有域名
+#     # allow_origins=["http://localhost:5173"],  # Allow only your frontend's origin
+#     allow_credentials=True,  # Allow cookies and Authorization headers
+#     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+#     allow_headers=["*"],  # Allow all headers (e.g., Content-Type, Authorization)
+# )
 
 # 哲学问题池
-questions = [
-    "你如何理解幸福？",
-    "自由和责任，哪个更重要？",
-    "如果一切都是命运安排的，我们还需要努力吗？",
-    "人类追求真理是否可能？",
-    "孤独是一种力量还是一种缺陷？",
-    "如果没有死亡，人生还有意义吗？",
-    "正义和善良，是否永远一致？",
-    "你认为痛苦对成长有必要吗？",
-    "科技让我们更自由还是更依赖？",
-    "美好生活的标准是什么？"
-]
+# questions = [
+#     "你如何理解幸福？",
+#     "自由和责任，哪个更重要？",
+#     "如果一切都是命运安排的，我们还需要努力吗？",
+#     "人类追求真理是否可能？",
+#     "孤独是一种力量还是一种缺陷？",
+#     "如果没有死亡，人生还有意义吗？",
+#     "正义和善良，是否永远一致？",
+#     "你认为痛苦对成长有必要吗？",
+#     "科技让我们更自由还是更依赖？",
+#     "美好生活的标准是什么？"
+# ]
 
-@app.get("/api/question")
-def get_question():
-    # 随机抽取一个问题
-    return {"question": random.choice(questions)}
+# @app.get("/api/question")
+# def get_question():
+#     # 随机抽取一个问题
+#     return {"question": random.choice(questions)}
 
-DATABASE_URL = "sqlite:///./test.db"  # Use SQLite for simplicity
+# DATABASE_URL = "sqlite:///./test.db"  # Use SQLite for simplicity
+
+# ✅ 加载环境变量
+load_dotenv()
+
+# ✅ 环境配置
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
+# ✅ FastAPI 实例
+app = FastAPI(
+    title="Your App API",
+    debug=DEBUG,
+)
+
+# ✅ 动态 CORS 配置
+if DEBUG:
+    # 开发环境：允许所有源
+    cors_origins = ["*"]
+    print("🔧 Running in DEBUG mode - CORS allows all origins")
+else:
+    # 生产环境：只允许配置的源
+    cors_origins = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
+    print(f"🚀 Running in PRODUCTION mode - CORS allowed origins: {cors_origins}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ 数据库配置
+# 如果是 PostgreSQL，修正连接字符串
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+# 根据数据库类型选择配置
+connect_args = {}
+if "sqlite" in DATABASE_URL:
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    echo=DEBUG  # 开发环境显示 SQL 日志
+)
+
+
+
 Base = declarative_base()
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 

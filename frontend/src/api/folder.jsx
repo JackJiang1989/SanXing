@@ -1,6 +1,8 @@
+import { apiUrl } from './config';
+
 // 创建文件夹
 export async function createFolder(token, name) {
-  const res = await fetch("/api/folders", {
+  const res = await fetch(apiUrl("/api/folders"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,7 +16,7 @@ export async function createFolder(token, name) {
 
 // 获取文件夹列表
 export async function getFolders(token) {
-  const res = await fetch("/api/folders", {
+  const res = await fetch(apiUrl("/api/folders"), {
     headers: {
       "Authorization": `Bearer ${token}`,
     },
@@ -25,7 +27,7 @@ export async function getFolders(token) {
 
 // 重命名文件夹
 export async function renameFolder(token, folderId, newName) {
-  const res = await fetch(`/api/folders/${folderId}`, {
+  const res = await fetch(apiUrl(`/api/folders/${folderId}`), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +41,7 @@ export async function renameFolder(token, folderId, newName) {
 
 // 删除文件夹
 export async function deleteFolder(token, folderId) {
-  const res = await fetch(`/api/folders/${folderId}`, {
+  const res = await fetch(apiUrl(`/api/folders/${folderId}`), {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`,

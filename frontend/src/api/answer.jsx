@@ -1,5 +1,7 @@
+import { apiUrl } from './config';
+
 export async function saveAnswer(content, token, question_id) {
-  const res = await fetch("/api/answer", {
+  const res = await fetch(apiUrl("/api/answer"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,7 +16,7 @@ export async function saveAnswer(content, token, question_id) {
 }
 
 export async function getAnswers(token, questionId) {
-  const res = await fetch(`/api/answer?question_id=${questionId}`, {
+  const res = await fetch(apiUrl(`/api/answer?question_id=${questionId}`), {
     method: "GET",
     headers: {
       // "Content-Type": "application/json",

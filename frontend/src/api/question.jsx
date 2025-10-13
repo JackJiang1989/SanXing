@@ -1,5 +1,7 @@
+import { apiUrl } from './config';
+
 export async function createMyQuestion(token, question) {
-  const res = await fetch("/api/my-questions", {
+  const res = await fetch(apiUrl("/api/my-questions"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -12,7 +14,7 @@ export async function createMyQuestion(token, question) {
 }
 
 export async function getMyQuestion(token) {
-  const res = await fetch("/api/my-questions", {
+  const res = await fetch(apiUrl("/api/my-questions"), {
     headers: { "Authorization": `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("获取问题失败");
@@ -20,7 +22,7 @@ export async function getMyQuestion(token) {
 }
 
 export async function shareMyQuestion(token, questionId) {
-  const res = await fetch(`/api/questions/${questionId}/share`, {
+  const res = await fetch(apiUrl(`/api/questions/${questionId}/share`), {
     method: "PUT",
     headers: { "Authorization": `Bearer ${token}` },
   });
@@ -32,7 +34,7 @@ export async function shareMyQuestion(token, questionId) {
 export async function getQuestion(questionId) {
   // return "What is the meaning of life?";
   try {
-    const res = await fetch(`/api/question/${questionId}`);
+    const res = await fetch(apiUrl(`/api/question/${questionId}`));
 
     if (!res.ok) {
       throw new Error("获取问题失败");
