@@ -2,8 +2,10 @@
 .env
 .env.local
 .env.production
-.env.development
+
+# 但保留示例文件
 !.env.example
+!.env.development
 
 # Python
 __pycache__/
