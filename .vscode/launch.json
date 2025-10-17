@@ -1,36 +1,70 @@
 {
   "version": "0.2.0",
-  "compounds": [
-    {
-      "name": "Full Stack (FastAPI + React)",
-      "configurations": ["FastAPI", "Vite dev server", "Debug React Frontend"]
-    }
-  ],
   "configurations": [
     {
-      "name": "FastAPI",
+      "name": "🚀 启动后端 (FastAPI)",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["backend.main:app", "--reload", "--port", "8000"],
-      "justMyCode": true,
-      "console": "integratedTerminal"
+      "args": [
+        "main:app",
+        "--reload",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "envFile": "${workspaceFolder}/backend/.env.development"
     },
     {
-      "name": "Vite dev server",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev",
-      "cwd": "${workspaceFolder}/frontend"
-    },
-    {
-      "name": "Debug React Frontend",
+      "name": "🎨 启动前端 (Vite)",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/frontend/src",
-      "trace": true,
+      "webRoot": "${workspaceFolder}/frontend",
+    //   "runtimeArgs": [
+    //     "--auto-open-devtools-for-tabs"
+    //   ],
+      "sourceMaps": true,
+      "preLaunchTask": "npm: dev - frontend"
+    },
+    {
+      "name": "🌐 附加到浏览器 (Chrome)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/frontend",
       "sourceMaps": true
+    },
+    {
+      "name": "🔧 调试当前 Python 文件",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "justMyCode": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 全栈调试 (前端 + 后端)",
+      "configurations": [
+        "🚀 启动后端 (FastAPI)",
+        "🎨 启动前端 (Vite)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "fullstack",
+        "order": 1
+      }
     }
   ]
 }

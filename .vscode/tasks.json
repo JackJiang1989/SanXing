@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: dev - frontend",     // ✅ VSCode 用这个名字匹配 launch.json 的 preLaunchTask
+      "type": "npm",                     // ✅ 调用 npm 命令
+      "script": "dev",                   // ✅ 执行 "npm run dev"
+      "path": "frontend/",               // ✅ 在 frontend 目录下执行（末尾 / 无影响）
+      "isBackground": true,              // ✅ 必须的，Vite 是持续运行任务
+      "problemMatcher": {                // ✅ 用于告诉 VSCode 任务什么时候“启动完成”
+        "owner": "vite",
+        "pattern": { "regexp": "^$" },   // ✅ 空匹配器占位（不捕获输出）
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE.*ready in",             // 👈 任务开始检测
+          "endsPattern": "Local:.*http://localhost:5173" // 👈 任务就绪检测
+        }
+      }
+    }
+  ]
+}
