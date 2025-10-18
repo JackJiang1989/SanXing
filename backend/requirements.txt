@@ -5,7 +5,8 @@ python-dotenv>=1.0.0
 
 # --- pydantic with prebuilt wheels ---
 pydantic==2.5.0
-pydantic-core==2.14.6; sys_platform != "win32"
+# pydantic-core==2.14.6; sys_platform != "win32"
+# pydantic-core>=2.14.1; sys_platform == "win32"
 
 # --- optional (if using databases or email) ---
 pydantic[email]
