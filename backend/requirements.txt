@@ -1,17 +1,19 @@
 # --- core packages ---
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-python-dotenv>=1.0.0
 
 # --- pydantic with prebuilt wheels ---
-pydantic==2.5.0
+# pydantic==2.5.0
 # pydantic-core==2.14.6; sys_platform != "win32"
 # pydantic-core>=2.14.1; sys_platform == "win32"
 
 # --- optional (if using databases or email) ---
-pydantic[email]
-SQLAlchemy==2.0.23
+# pydantic[email]
+SQLAlchemy==2.0.25
 
 python-multipart==0.0.6
-python-dotenv==1.0.0        # ✅ 新增：环境变量支持
+python-dotenv>=1.0.0        # ✅ 新增：环境变量支持
 psycopg2-binary==2.9.9      # ✅ 新增：PostgreSQL 支持
+
+# --- Optional but Useful ---
+typing-extensions>=4.10.0
