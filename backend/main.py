@@ -1,12 +1,11 @@
 import os
 from fastapi import FastAPI, HTTPException, Depends, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import create_engine, Column, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, Session
 from uuid import uuid4
-from datetime import date
 from typing import Optional, List, Dict, Any
 import hashlib
 import secrets
@@ -63,6 +62,13 @@ engine = create_engine(
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+def safe_compare(dt1, dt2):
+    """安全比较两个 datetime"""
+    if dt1.tzinfo is None:
+        dt1 = dt1.replace(tzinfo=timezone.utc)
+    if dt2.tzinfo is None:
+        dt2 = dt2.replace(tzinfo=timezone.utc)
+    return dt1 < dt2
 
 # 获取数据库 session
 def get_db():
@@ -89,7 +95,7 @@ class Question(Base):
     question_text = Column(String)
     created_by = Column(String, ForeignKey("users.id"), nullable=True)
     is_public = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     answers = relationship("Answer", back_populates="question")
 
 
@@ -98,7 +104,7 @@ class Answer(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     user_email = Column(String, ForeignKey("users.email"))
     content = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     question_id = Column(String, ForeignKey("questions.id"))
     question = relationship("Question", back_populates="answers")
     user = relationship("User", back_populates="answers")
@@ -110,7 +116,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     username = Column(String, default="Anonymous")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     answers = relationship("Answer", back_populates="user")
     folders = relationship("Folder", back_populates="user")
 
@@ -119,7 +125,7 @@ class Folder(Base):
     __tablename__ = "folders"
     id = Column(String, primary_key=True, default=lambda: str(uuid4()), index=True)
     name = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="folders")
     questions = relationship("FolderQuestion", back_populates="folder")
@@ -238,7 +244,10 @@ def get_current_user(authorization: str = Header(...)):
 
     db = SessionLocal()
     db_token = db.query(Token).filter(Token.token == token).first()
-    if not db_token or db_token.expires_at < datetime.utcnow():
+    # print(db_token.expires_at, datetime.now(timezone.utc))
+    # if not db_token or db_token.expires_at < datetime.now(timezone.utc):
+    # if not db_token or db_token.expires_at < datetime.utcnow():
+    if not db_token or safe_compare(db_token.expires_at, datetime.now(timezone.utc)):
         db.close()
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     user = db.query(User).filter(User.email == db_token.email).first()
@@ -325,7 +334,7 @@ async def login(data: Dict[str, Any]):
         db.close()
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = generate_token()
-    expires_at = datetime.utcnow() + timedelta(hours=1)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
     new_token = Token(token=token, email=validated["email"], expires_at=expires_at)
     db.add(new_token)
     db.commit()
@@ -360,14 +369,15 @@ async def save_answer(data: Dict[str, Any], authorization: str = Header(...)):
     token = authorization.split(" ")[1]
 
     db_token = db.query(Token).filter(Token.token == token).first()
-    if not db_token or db_token.expires_at < datetime.utcnow():
+    # if not db_token or db_token.expires_at < datetime.now(timezone.utc):
+    if not db_token or safe_compare(db_token.expires_at, datetime.now(timezone.utc)):
         db.close()
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     new_answer = Answer(
         user_email=db_token.email,
         content=validated["content"],
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
         question_id=validated["question_id"],
     )
     db.add(new_answer)
@@ -386,7 +396,8 @@ def get_answers(question_id: str = Query(...), authorization: str = Header(...))
         raise HTTPException(status_code=401, detail="Invalid Authorization header format")
     token = authorization.split(" ")[1]
     db_token = db.query(Token).filter(Token.token == token).first()
-    if not db_token or db_token.expires_at < datetime.utcnow():
+    # if not db_token or db_token.expires_at < datetime.now(timezone.utc):
+    if not db_token or safe_compare(db_token.expires_at, datetime.now(timezone.utc)):    
         db.close()
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 

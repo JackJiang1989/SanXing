@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, Column, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from dotenv import load_dotenv
 
@@ -48,7 +48,7 @@ class Question(Base):
     question_text = Column(String)
     created_by = Column(String, nullable=True)
     is_public = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
 
 
 # 你准备好的问题数据
@@ -286,7 +286,7 @@ def insert_questions():
                 question_text=q["question_text"],
                 created_by=None,
                 is_public=True,  # ✅ 改为公开，这样 daily-questions 可以使用
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             db.add(question)
             added_count += 1
