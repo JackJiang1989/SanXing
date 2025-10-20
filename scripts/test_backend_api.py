@@ -396,10 +396,10 @@ def main():
         else:
             results["failed"] += 1
             
-    question_id = test_daily_questions()
-    count_result(question_id is not None)
+    # question_id = test_daily_questions()
+    # count_result(question_id is not None)
 
-    # # 1. 健康检查（支持冷启动重试）
+    # 1. 健康检查（支持冷启动重试）
     # if not test_health_check():
     #     print(f"\n{Colors.RED}❌ 健康检查失败{Colors.END}")
     #     print(f"\n{Colors.YELLOW}可能的原因：{Colors.END}")
@@ -412,72 +412,72 @@ def main():
     #     print(f"  - 检查 Render Dashboard 的部署状态\n")
     #     return
     
-    # # 2. API 文档
-    # count_result(test_api_docs())
+    # 2. API 文档
+    count_result(test_api_docs())
     
-    # # 3. 用户注册
-    # if not test_user_registration():
-    #     print(f"\n{Colors.RED}❌ 用户注册失败，停止测试{Colors.END}")
-    #     return
-    # count_result(True)
+    # 3. 用户注册
+    if not test_user_registration():
+        print(f"\n{Colors.RED}❌ 用户注册失败，停止测试{Colors.END}")
+        return
+    count_result(True)
     
-    # # 4. 重复注册
-    # count_result(test_duplicate_registration())
+    # 4. 重复注册
+    count_result(test_duplicate_registration())
     
-    # # 5. 用户登录
-    # token = test_user_login()
-    # if not token:
-    #     print(f"\n{Colors.RED}❌ 用户登录失败，停止测试{Colors.END}")
-    #     return
-    # count_result(True)
+    # 5. 用户登录
+    token = test_user_login()
+    if not token:
+        print(f"\n{Colors.RED}❌ 用户登录失败，停止测试{Colors.END}")
+        return
+    count_result(True)
     
-    # # 6. 错误密码
-    # count_result(test_wrong_password())
+    # 6. 错误密码
+    count_result(test_wrong_password())
     
-    # # 7. 获取用户信息
-    # count_result(test_get_user_info(token))
+    # 7. 获取用户信息
+    count_result(test_get_user_info(token))
     
-    # # 8. 每日问题
-    # question_id = test_daily_questions()
-    # count_result(question_id is not None)
+    # 8. 每日问题
+    question_id = test_daily_questions()
+    count_result(question_id is not None)
     
-    # # 9. 所有问题
-    # count_result(test_all_questions())
+    # 9. 所有问题
+    count_result(test_all_questions())
     
-    # # 10-11. 答案功能
-    # if question_id:
-    #     count_result(test_save_answer(token, question_id))
-    #     count_result(test_get_answers(token, question_id))
+    # 10-11. 答案功能
+    if question_id:
+        count_result(test_save_answer(token, question_id))
+        count_result(test_get_answers(token, question_id))
     
-    # # 12-13. 文件夹功能
-    # folder_id = test_create_folder(token)
-    # count_result(folder_id is not None)
-    # if folder_id:
-    #     count_result(test_get_folders(token))
+    # 12-13. 文件夹功能
+    folder_id = test_create_folder(token)
+    count_result(folder_id is not None)
+    if folder_id:
+        count_result(test_get_folders(token))
     
-    # # 14. 用户设置
-    # count_result(test_user_settings(token))
+    # 14. 用户设置
+    count_result(test_user_settings(token))
     
-    # # 总结
-    # print_section("测试总结")
-    # print(f"总测试数: {results['total']}")
-    # print(f"{Colors.GREEN}通过: {results['passed']}{Colors.END}")
-    # print(f"{Colors.RED}失败: {results['failed']}{Colors.END}")
+    # 总结
+    print_section("测试总结")
+    print(f"总测试数: {results['total']}")
+    print(f"{Colors.GREEN}通过: {results['passed']}{Colors.END}")
+    print(f"{Colors.RED}失败: {results['failed']}{Colors.END}")
     
-    # success_rate = (results['passed'] / results['total'] * 100) if results['total'] > 0 else 0
-    # print(f"成功率: {success_rate:.1f}%")
+    success_rate = (results['passed'] / results['total'] * 100) if results['total'] > 0 else 0
+    print(f"成功率: {success_rate:.1f}%")
     
-    # if results['failed'] == 0:
-    #     print(f"\n{Colors.GREEN}{'='*60}{Colors.END}")
-    #     print(f"{Colors.GREEN}🎉 所有测试通过！后端 API 运行正常！{Colors.END}")
-    #     print(f"{Colors.GREEN}{'='*60}{Colors.END}")
-    # else:
-    #     print(f"\n{Colors.YELLOW}{'='*60}{Colors.END}")
-    #     print(f"{Colors.YELLOW}⚠️  部分测试失败，请检查错误信息{Colors.END}")
-    #     print(f"{Colors.YELLOW}{'='*60}{Colors.END}")
+    if results['failed'] == 0:
+        print(f"\n{Colors.GREEN}{'='*60}{Colors.END}")
+        print(f"{Colors.GREEN}🎉 所有测试通过！后端 API 运行正常！{Colors.END}")
+        print(f"{Colors.GREEN}{'='*60}{Colors.END}")
+    else:
+        print(f"\n{Colors.YELLOW}{'='*60}{Colors.END}")
+        print(f"{Colors.YELLOW}⚠️  部分测试失败，请检查错误信息{Colors.END}")
+        print(f"{Colors.YELLOW}{'='*60}{Colors.END}")
     
-    # print(f"\n完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    # print(f"\n{Colors.BLUE}💡 提示: 你也可以访问 {BACKEND_URL}/docs 手动测试 API{Colors.END}\n")
+    print(f"\n完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\n{Colors.BLUE}💡 提示: 你也可以访问 {BACKEND_URL}/docs 手动测试 API{Colors.END}\n")
 
 if __name__ == "__main__":
     main()

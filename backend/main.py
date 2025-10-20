@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException, Depends, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import create_engine, Column, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,6 +13,7 @@ import secrets
 import random
 from dotenv import load_dotenv
 import re
+import time
 
 
 # ✅ 加载环境变量
@@ -732,3 +734,128 @@ def get_daily_questions(db: Session = Depends(get_db)):
     selected = random.sample(all_questions, 3)
     
     return [serialize_question(q) for q in selected]
+
+
+
+#健康检查
+# 应用启动时间（用于 uptime 计算）
+APP_START_TIME = time.time()
+
+@app.get("/health")
+async def health_check():
+    """
+    基础健康检查
+    返回 200 表示服务正常运行
+    """
+    return {"status": "healthy", "service": "fastapi"}
+
+
+@app.get("/health/ready")
+async def readiness_check(db: Session = Depends(get_db)):
+    """
+    就绪检查 - 检查服务是否准备好接收流量
+    包含数据库连接检查
+    """
+    try:
+        # 测试数据库连接
+        db.execute("SELECT 1")
+        
+        return {
+            "status": "ready",
+            "database": "connected",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not ready",
+                "database": "disconnected",
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+
+@app.get("/health/live")
+async def liveness_check():
+    """
+    存活检查 - 检查应用是否仍在运行
+    不检查依赖项，只确认进程存活
+    """
+    uptime_seconds = int(time.time() - APP_START_TIME)
+    return {
+        "status": "alive",
+        "uptime_seconds": uptime_seconds,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/health/detailed")
+async def detailed_health_check(db: Session = Depends(get_db)):
+    """
+    详细健康检查 - 返回完整的系统状态
+    包含数据库、环境等信息
+    """
+    health_status = {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "uptime_seconds": int(time.time() - APP_START_TIME),
+        "environment": ENVIRONMENT,
+        "debug_mode": DEBUG,
+        "checks": {}
+    }
+    
+    # 数据库检查
+    try:
+        db.execute("SELECT 1")
+        health_status["checks"]["database"] = {
+            "status": "healthy",
+            "message": "Database connection successful"
+        }
+    except Exception as e:
+        health_status["status"] = "unhealthy"
+        health_status["checks"]["database"] = {
+            "status": "unhealthy",
+            "error": str(e)
+        }
+    
+    # 数据统计检查
+    try:
+        question_count = db.query(Question).count()
+        user_count = db.query(User).count()
+        answer_count = db.query(Answer).count()
+        
+        health_status["checks"]["data"] = {
+            "status": "healthy",
+            "statistics": {
+                "questions": question_count,
+                "users": user_count,
+                "answers": answer_count
+            }
+        }
+    except Exception as e:
+        health_status["checks"]["data"] = {
+            "status": "warning",
+            "error": str(e)
+        }
+    
+    # 根据检查结果返回适当的状态码
+    status_code = 200 if health_status["status"] == "healthy" else 503
+    return JSONResponse(status_code=status_code, content=health_status)
+
+
+# 可选：添加根路径重定向到 API 文档
+@app.get("/")
+async def root():
+    """
+    根路径 - 返回 API 信息
+    """
+    return {
+        "service": "Your App API",
+        "version": "1.0.0",
+        "status": "running",
+        "docs": "/docs",
+        "health_check": "/health",
+        "environment": ENVIRONMENT
+    }
