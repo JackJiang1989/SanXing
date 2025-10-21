@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createFolder, addQuestionToFolder } from "../api/folder";
+import { apiUrl } from "../api/config";
 
 export default function CreateFolderPage() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function CreateFolderPage() {
   async function loadAllQuestions() {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/all_questions");
+      const res = await fetch(apiUrl("/api/all_questions"));
       const data = await res.json();
       setAllQuestions(data);
     } catch (err) {

@@ -8,6 +8,7 @@ import {
   addQuestionToFolder, 
   removeQuestionFromFolder 
 } from "../api/folder";
+import { apiUrl } from "../api/config";
 
 export default function FolderDetailPage() {
   const { folderId } = useParams();
@@ -47,7 +48,7 @@ export default function FolderDetailPage() {
 
   async function loadAllQuestions() {
     try {
-      const res = await fetch("/api/all_questions");
+      const res = await fetch(apiUrl("/api/all_questions"));
       const data = await res.json();
       setAllQuestions(data);
     } catch (err) {

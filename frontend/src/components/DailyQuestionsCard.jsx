@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiUrl } from "../api/config";
 
 export default function DailyQuestionsCard() {
   const [questions, setQuestions] = useState([]);
@@ -11,7 +12,7 @@ export default function DailyQuestionsCard() {
 
   async function loadQuestions() {
     try {
-      const res = await fetch("/api/daily-questions");
+      const res = await fetch(apiUrl("/api/daily-questions"));
       if (!res.ok) throw new Error("获取每日问题失败");
       const data = await res.json();
       setQuestions(data);
