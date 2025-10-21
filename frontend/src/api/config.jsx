@@ -4,14 +4,34 @@
  */
 
 // 获取 API 基础 URL
+// const getApiBaseUrl = () => {
+//   // 开发环境：使用 Vite 代理，返回空字符串
+//   if (import.meta.env.DEV) {
+//     return '';
+//   }
+  
+//   // 生产环境：使用环境变量配置的完整 URL
+//   return import.meta.env.VITE_API_URL || '';
+// };
+
+
+// 获取 API 基础 URL
 const getApiBaseUrl = () => {
   // 开发环境：使用 Vite 代理，返回空字符串
   if (import.meta.env.DEV) {
     return '';
   }
   
-  // 生产环境：使用环境变量配置的完整 URL
-  return import.meta.env.VITE_API_URL || '';
+  // ✅ 生产环境：必须配置完整的后端 URL
+  const apiUrl = import.meta.env.VITE_API_URL;
+  
+  if (!apiUrl) {
+    console.error('❌ VITE_API_URL 未配置！请在 Render 环境变量中设置');
+    // 返回默认后端地址（可选）
+    return 'https://sanxing.onrender.com';
+  }
+  
+  return apiUrl;
 };
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -31,8 +51,12 @@ export const apiUrl = (path) => {
   return `${API_BASE_URL}${path}`;
 };
 
-// 调试信息（仅开发环境）
-if (import.meta.env.DEV) {
-  console.log('🔧 Development Mode');
-  console.log('API Base URL:', API_BASE_URL);
-}
+// ✅ 添加这些调试日志
+console.log('=== API Configuration Debug ===');
+console.log('🔧 Environment Mode:', import.meta.env.MODE);
+console.log('🔧 Is Development:', import.meta.env.DEV);
+console.log('🔧 Is Production:', import.meta.env.PROD);
+console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
+console.log('📝 Test apiUrl("/api/test"):', apiUrl('/api/test'));
+console.log('================================');
