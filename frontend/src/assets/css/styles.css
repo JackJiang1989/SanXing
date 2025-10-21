@@ -10,3 +10,15 @@ body {
 h1 {
   color: #333;
 }
+
+@font-face {
+  font-family: "MyKai";
+  src: url("/fonts/FZKai.ttf") format("truetype"); /* 替换为你的楷体文件或 webfont URL */
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.kaishu {
+  font-family: "MyKai", system-ui, -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
